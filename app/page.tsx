@@ -1,65 +1,185 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { data } from "@/lib/data";
+import { getProgress } from "@/lib/progress";
+
+export default function HomeScreen() {
+  const [completedQuests, setCompletedQuests] = useState<string[]>([]);
+  const [showLockMsg, setShowLockMsg] = useState<number | null>(null);
+  const router = useRouter();
+
+  const [xp, setXp] = useState(0);
+  const [level, setLevel] = useState(1);
+
+
+  // 🏅 Achievements
+  const achievements = [
+    { id: 1, title: "First Step 🎯", condition: xp >= 10 },
+    { id: 2, title: "Getting Started 🚀", condition: xp >= 50 },
+    { id: 3, title: "Tech Explorer 🌐", condition: xp >= 150 },
+  ];
+
+  const handleStart = (index: number) => {
+    router.push(`/quest/${index}`);
+  };
+
+  const speak = (text: string) => {
+    if (!window.speechSynthesis) return;
+
+    speechSynthesis.cancel(); // stop previous voice
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.85;
+    utterance.pitch = 1;
+
+    speechSynthesis.speak(utterance);
+  };
+
+
+  useEffect(() => {
+    const saved = getProgress();
+    setXp(saved.xp);
+    setLevel(saved.level);
+    setCompletedQuests(saved.completedQuests);
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="min-h-screen bg-gray-50 flex justify-center px-4 py-6">
+      <div className="w-full max-w-md space-y-5">
+        {/* 👋 SIMPLE GREETING */}
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-800">Hello 👋</h1>
+          <p className="text-gray-500 text-base">
+            Let’s learn something new today
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* 🧠 USER PROGRESS CARD */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl shadow-md p-5 border"
+        >
+          {/* XP + Level */}
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-sm text-gray-500">Level {level}</p>
+              <p className="text-xl font-semibold text-gray-800">{xp} XP</p>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-green-500"
+                style={{ width: `${xp % 100}%` }}
+              />
+            </div>
+          </div>
+
+          {/* 🏅 Achievements */}
+          <div className="flex flex-wrap gap-2 mt-2">
+            {achievements.map(
+              (a) =>
+                a.condition && (
+                  <span
+                    key={a.id}
+                    className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-lg"
+                  >
+                    {a.title}
+                  </span>
+                ),
+            )}
+          </div>
+        </motion.div>
+
+        {/* 📚 ALL QUESTS */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            All Lessons
+          </h3>
+
+          <div className="space-y-3">
+            {data.map((quest, index) => {
+              const isCompleted = completedQuests.includes(quest.title); // track this
+              const isLocked = index > level + 1; // optional lock logic
+
+              return (
+                <motion.div
+                  key={index}
+                  whileTap={{ scale: isLocked ? 1 : 0.97 }}
+                  onClick={() => {
+                    if (isLocked) {
+                      setShowLockMsg(index);
+                      setTimeout(() => setShowLockMsg(null), 1500);
+                    } else {
+                      handleStart(index);
+                    }
+                  }}
+                  onMouseEnter={() => isLocked && setShowLockMsg(index)}
+                  onMouseLeave={() => setShowLockMsg(null)}
+                  className={`relative rounded-2xl p-4 flex items-center justify-between transition-all
+    ${
+      isLocked
+        ? "bg-gray-100 text-gray-400"
+        : "bg-white shadow-sm hover:shadow-md cursor-pointer"
+    }`}
+                >
+                  {/* LEFT */}
+                  <div>
+                    <p className="text-base font-medium text-gray-800">
+                      {quest.title}
+                    </p>
+
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      {quest.steps.length} steps
+                    </p>
+                  </div>
+
+                  {/* RIGHT STATUS */}
+                  <div className="flex items-center gap-2">
+                    {isCompleted && (
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                        ✓ Done
+                      </span>
+                    )}
+
+                    {isLocked && (
+                      <span className="text-gray-400 text-lg">🔒</span>
+                    )}
+
+                    {!isCompleted && !isLocked && (
+                      <span className="text-gray-400 text-lg">›</span>
+                    )}
+                  </div>
+
+                  {/* 💬 TOOLTIP */}
+                  {isLocked && showLockMsg === index && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-3 py-1.5 rounded-lg shadow-md whitespace-nowrap"
+                    >
+                      Complete previous steps first
+                    </motion.div>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
-      </main>
+
+        {/* 🚀 BIG BUTTON */}
+        <motion.button
+          whileTap={{ scale: 0.96 }}
+          onClick={() => handleStart(0)}
+          className="w-full bg-black text-white py-4 rounded-xl text-lg font-medium"
+        >
+          Start Learning
+        </motion.button>
+      </div>
     </div>
   );
 }
