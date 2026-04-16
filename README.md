@@ -20,7 +20,7 @@ It’s like **Duolingo, but for practical digital skills**.
 
 ---
 
-## 🛠️ How we built it
+## 🛠️ How I built it
 - ⚡ **Next.js (App Router)** for frontend + backend
 - 🎨 **Tailwind CSS** for modern UI
 - 🎞️ **Framer Motion** for smooth animations
@@ -30,7 +30,7 @@ It’s like **Duolingo, but for practical digital skills**.
 
 ---
 
-## ⚔️ Challenges we ran into
+## ⚔️ Challenges I ran into
 - Designing a UI that is **simple enough for seniors**
 - Making interactions **intuitive and not overwhelming**
 - Handling **state persistence (XP, progress, quests)**
@@ -39,7 +39,7 @@ It’s like **Duolingo, but for practical digital skills**.
 
 ---
 
-## 🏆 Accomplishments that we're proud of
+## 🏆 Accomplishments that I'm proud of
 - Built a **fully interactive learning flow**, not just videos
 - Created a **gamified system (XP, levels, achievements)**
 - Integrated a **context-aware AI tutor**
@@ -66,5 +66,5 @@ It’s like **Duolingo, but for practical digital skills**.
 
 ---
 
-## ❤️ Our Mission
+## ❤️ Vision
 To help senior citizens feel **confident, independent, and included** in the digital world.
