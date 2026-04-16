@@ -1,19 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, Volume2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useParams, useRouter } from "next/navigation";
 import { data } from "@/lib/data";
-import { getProgress, saveProgress } from "@/lib/progress";
+import {
+  addStepTime,
+  getProgress,
+  saveProgress,
+  updateDailyActivity,
+  UserProgress,
+} from "@/lib/progress";
 
 export default function QuestScreen() {
-  type UserProgress = {
-    xp: number;
-    level: number;
-    completedQuests: string[];
-  };
+  const router = useRouter();
+  const params = useParams<{ id: string }>();
 
   const [xp, setXp] = useState(0);
   const [prevXp, setPrevXp] = useState(0);
@@ -23,6 +26,17 @@ export default function QuestScreen() {
     { id: number; x: number; y: number }[]
   >([]);
 
+  const updateProgress = (updates: Partial<UserProgress>) => {
+    const current = getProgress();
+
+    const updated = {
+      ...current,
+      ...updates,
+    };
+
+    saveProgress(updated);
+  };
+
   const gainXP = (amount: number) => {
     setXp((prev) => {
       const newXP = prev + amount;
@@ -30,10 +44,9 @@ export default function QuestScreen() {
       setLevel((l) => {
         const newLevel = newXP >= l * 100 ? l + 1 : l;
 
-        saveProgress({
+        updateProgress({
           xp: newXP,
           level: newLevel,
-          completedQuests,
         });
 
         return newLevel;
@@ -41,6 +54,8 @@ export default function QuestScreen() {
 
       return newXP;
     });
+
+    updateDailyActivity(amount);
   };
 
   const levels = [
@@ -58,13 +73,12 @@ export default function QuestScreen() {
     { id: 3, title: "Tech Explorer 🌐", condition: xp >= 150 },
   ];
 
-  const router = useRouter();
-  const params = useParams<{ id: string }>();
-
   const [currentStep, setCurrentStep] = useState(0);
   const [currentQuest, setCurrentQuest] = useState(0);
   const [completed, setCompleted] = useState<number[]>([]);
   const [completedQuests, setCompletedQuests] = useState<string[]>([]);
+
+  const stepStartTime = useRef(Date.now());
 
   // 🎉 Confetti
   const launchConfetti = () => {
@@ -104,7 +118,7 @@ export default function QuestScreen() {
   }, []);
 
   useEffect(() => {
-    if (params) {
+    if (params?.id) {
       setCurrentQuest(parseInt(params.id));
     } else {
       router.push("/");
@@ -114,6 +128,7 @@ export default function QuestScreen() {
   useEffect(() => {
     if (data[currentQuest]) {
       speak(data[currentQuest].steps[0]);
+      stepStartTime.current = Date.now();
     }
   }, [currentQuest]);
 
@@ -123,6 +138,7 @@ export default function QuestScreen() {
     // Only speak if step is valid
     if (currentStep < data[currentQuest].steps.length) {
       speak(data[currentQuest].steps[currentStep]);
+      stepStartTime.current = Date.now();
     }
   }, [currentStep, currentQuest]);
 
@@ -135,10 +151,9 @@ export default function QuestScreen() {
 
         setCompletedQuests(updated);
 
-        saveProgress({
+        updateProgress({
           xp,
           level,
-          completedQuests: updated,
         });
         launchConfetti(); // 🎉
         speak("Lesson Completed!");
@@ -149,6 +164,10 @@ export default function QuestScreen() {
   const completeStep = (index: number, e?: React.MouseEvent) => {
     if (index === currentStep) {
       gainXP(10);
+
+      // ⏱️ Track time
+      const timeTaken = Date.now() - stepStartTime.current;
+      addStepTime(timeTaken);
 
       // 🎯 Get click position
       const rect = (e?.currentTarget as HTMLElement)?.getBoundingClientRect();
@@ -174,8 +193,17 @@ export default function QuestScreen() {
   const hasNextQuest = currentQuest < data.length - 1;
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb] flex justify-center px-2 sm:px-4">
-      <div className="w-full max-w-md bg-white min-h-screen px-4 py-5">
+    <div className="min-h-screen flex justify-center px-2 sm:px-4 relative overflow-hidden bg-linear-to-br from-[#eef2ff] via-[#f8fafc] to-[#e0f2fe]">
+      {/* ✨ Animated Glow Layer */}
+      <div className="absolute inset-0">
+        <div className="absolute w-100 h-100 bg-blue-300/30 rounded-full blur-3xl animate-float -top-25 -left-25" />
+
+        <div className="absolute w-87.5 h-87.5 bg-purple-300/30 rounded-full blur-3xl animate-float delay-2000 -bottom-30 -right-20" />
+
+        <div className="absolute w-75 h-75 bg-green-300/20 rounded-full blur-3xl animate-float delay-4000 top-[40%] left-[30%]" />
+      </div>
+      <div className="w-full max-w-md bg-white min-h-screen px-4 py-5 relative">
+        {/* XP POPUPS */}
         <div className="fixed inset-0 pointer-events-none z-50">
           {xpPopups.map((popup) => (
             <motion.div

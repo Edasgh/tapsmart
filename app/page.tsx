@@ -7,13 +7,18 @@ import { data } from "@/lib/data";
 import { getProgress } from "@/lib/progress";
 
 export default function HomeScreen() {
-  const [completedQuests, setCompletedQuests] = useState<string[]>([]);
-  const [showLockMsg, setShowLockMsg] = useState<number | null>(null);
   const router = useRouter();
 
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
+  const [completedQuests, setCompletedQuests] = useState<string[]>([]);
+  const [dailyActivity, setDailyActivity] = useState<any[]>([]);
+  const [stepTimes, setStepTimes] = useState<number[]>([]);
+  const [showLockMsg, setShowLockMsg] = useState<number | null>(null);
 
+  // 🧠 Insights
+  const [todaySkills, setTodaySkills] = useState(0);
+  const [speedPercent, setSpeedPercent] = useState(0);
 
   // 🏅 Achievements
   const achievements = [
@@ -22,33 +27,53 @@ export default function HomeScreen() {
     { id: 3, title: "Tech Explorer 🌐", condition: xp >= 150 },
   ];
 
-  const handleStart = (index: number) => {
-    router.push(`/quest/${index}`);
-  };
-
-  const speak = (text: string) => {
-    if (!window.speechSynthesis) return;
-
-    speechSynthesis.cancel(); // stop previous voice
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.85;
-    utterance.pitch = 1;
-
-    speechSynthesis.speak(utterance);
-  };
-
-
   useEffect(() => {
     const saved = getProgress();
+
     setXp(saved.xp);
     setLevel(saved.level);
     setCompletedQuests(saved.completedQuests);
+    setDailyActivity(saved.dailyActivity || []);
+    setStepTimes(saved.stepTimes || []);
+
+    // 📅 Today skills
+    const today = new Date().toISOString().split("T")[0];
+    const todayData = saved.dailyActivity?.find((d) => d.date === today);
+    setTodaySkills(todayData?.skills || 0);
+
+    // ⚡ Speed (lower time = better)
+    if (saved.stepTimes?.length) {
+      const avg =
+        saved.stepTimes.reduce((a, b) => a + b, 0) / saved.stepTimes.length;
+
+      // normalize (faster = higher %)
+      const score = Math.max(10, Math.min(100, 100 - avg / 50));
+      setSpeedPercent(Math.floor(score));
+    }
   }, []);
 
+  // 🚀 Smart Start
+  const handleStart = () => {
+    const nextIndex = data.findIndex((q) => !completedQuests.includes(q.title));
+    const target = nextIndex === -1 ? data.length - 1 : nextIndex;
+
+    router.push(`/quest/${target}`);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center px-4 py-6">
-      <div className="w-full max-w-md space-y-5">
+    <div className="min-h-screen flex justify-center px-4 py-6 relative bg-linear-to-br from-yellow-50 via-white to-yellow-100">
+      {/* ✨ Animated Warm Glow Layer (Yellow Theme) */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Soft Sun Glow */}
+        <div className="absolute w-105 h-105 bg-yellow-300/30 rounded-full blur-3xl animate-float -top-32 -left-24" />
+
+        {/* Warm Orange Glow */}
+        <div className="absolute w-90 h-90 bg-amber-300/30 rounded-full blur-3xl animate-float delay-2000 -bottom-32 -right-16" />
+
+        {/* Light Gold Accent */}
+        <div className="absolute w-75 h-75 bg-yellow-200/20 rounded-full blur-3xl animate-float delay-4000 top-[40%] left-[30%]" />
+      </div>
+      <div className="w-full max-w-md space-y-5 relative">
         {/* 👋 SIMPLE GREETING */}
         <div>
           <h1 className="text-2xl font-semibold text-gray-800">Hello 👋</h1>
@@ -95,6 +120,67 @@ export default function HomeScreen() {
           </div>
         </motion.div>
 
+        {/* 📊 INSIGHTS */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-white p-4 rounded-xl shadow-sm border">
+            <p className="text-xs text-gray-500">Today</p>
+            <p className="text-lg font-semibold">{todaySkills} skills</p>
+          </div>
+
+          <div className="bg-white p-4 rounded-xl shadow-sm border">
+            <p className="text-xs text-gray-500">Speed</p>
+            {speedPercent > 0 ? (
+              <p className="text-lg font-semibold">
+                Faster than {speedPercent}%
+              </p>
+            ) : (
+              <p className="text-base text-gray-500 italic font-semibold">
+                No data
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* 📈 WEEKLY GRAPH */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm border">
+          <p className="text-sm text-gray-600 mb-2">Weekly Progress</p>
+
+          {dailyActivity === null ? (
+            // 🔄 LOADER
+            <div className="flex items-end gap-2 h-20 animate-pulse">
+              {[...Array(7)].map((_, i) => (
+                <div key={i} className="flex-1 flex items-end">
+                  <div
+                    className="w-full bg-gray-200 rounded-md"
+                    style={{
+                      height: `${Math.random() * 80 + 20}%`,
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : dailyActivity.length === 0 ? (
+            // 💤 EMPTY STATE
+            <div className="h-20 flex items-center justify-center text-sm text-gray-400">
+              No activity yet
+            </div>
+          ) : (
+            // 📊 GRAPH
+            <div className="flex items-end gap-2 h-20">
+              {dailyActivity.slice(-7).map((d, i) => (
+                <div key={i} className="flex-1">
+                  <div
+                    className="bg-green-400 rounded-md transition-all duration-500"
+                    style={{
+                      height: `${Math.min(d.xp, 100)}%`,
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* 📚 ALL QUESTS */}
         <div>
           <h3 className="text-lg font-semibold text-gray-700 mb-2">
@@ -115,7 +201,7 @@ export default function HomeScreen() {
                       setShowLockMsg(index);
                       setTimeout(() => setShowLockMsg(null), 1500);
                     } else {
-                      handleStart(index);
+                      router.push(`/quest/${index}`);
                     }
                   }}
                   onMouseEnter={() => isLocked && setShowLockMsg(index)}
@@ -146,6 +232,17 @@ export default function HomeScreen() {
                       </span>
                     )}
 
+                    {/* 🤖 Ask AI */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/ai?id=${index}`);
+                      }}
+                      className="text-xs bg-blue-100 px-2 py-1 rounded-full"
+                    >
+                      Ask AI
+                    </button>
+
                     {isLocked && (
                       <span className="text-gray-400 text-lg">🔒</span>
                     )}
@@ -171,10 +268,10 @@ export default function HomeScreen() {
           </div>
         </div>
 
-        {/* 🚀 BIG BUTTON */}
+        {/*  START BUTTON */}
         <motion.button
           whileTap={{ scale: 0.96 }}
-          onClick={() => handleStart(0)}
+          onClick={() => handleStart()}
           className="w-full bg-black text-white py-4 rounded-xl text-lg font-medium"
         >
           Start Learning

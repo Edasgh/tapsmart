@@ -2,28 +2,79 @@ import Cookies from "js-cookie";
 
 const KEY = "genlink_progress";
 
-export type Progress = {
+export type UserProgress = {
   xp: number;
   level: number;
   completedQuests: string[];
+  dailyActivity: { date: string; xp: number; skills: number }[];
+  stepTimes: number[]; // ms
 };
 
-// Get progress
-export const getProgress = (): Progress => {
-  const data = Cookies.get(KEY);
+// 🧠 Default state
+const defaultProgress: UserProgress = {
+  xp: 0,
+  level: 1,
+  completedQuests: [],
+  dailyActivity: [],
+  stepTimes: [],
+};
 
-  if (!data) {
+// ✅ Get progress (safe)
+export const getProgress = (): UserProgress => {
+  try {
+    const data = Cookies.get(KEY);
+
+    if (!data) return defaultProgress;
+
+    const parsed = JSON.parse(data);
+
     return {
-      xp: 0,
-      level: 1,
-      completedQuests: [],
+      ...defaultProgress,
+      ...parsed, // ensures missing fields don't break
     };
+  } catch (err) {
+    console.error("Progress parse error:", err);
+    return defaultProgress;
+  }
+};
+
+// ✅ Save progress
+export const saveProgress = (progress: UserProgress) => {
+  Cookies.set(KEY, JSON.stringify(progress), {
+    expires: 180, // ~6 months
+  });
+};
+
+export const updateDailyActivity = (xpGained: number) => {
+  const progress = getProgress();
+
+  const today = new Date().toISOString().split("T")[0];
+
+  const existing = progress.dailyActivity.find((d) => d.date === today);
+
+  if (existing) {
+    existing.xp += xpGained;
+    existing.skills += 1;
+  } else {
+    progress.dailyActivity.push({
+      date: today,
+      xp: xpGained,
+      skills: 1,
+    });
   }
 
-  return JSON.parse(data);
+  saveProgress(progress);
 };
 
-// Save progress
-export const saveProgress = (progress: Progress) => {
-  Cookies.set(KEY, JSON.stringify(progress), { expires: 180 }); // 6 months
+export const addStepTime = (time: number) => {
+  const progress = getProgress();
+
+  progress.stepTimes.push(time);
+
+  // Keep only last 50 entries (avoid bloating cookie)
+  if (progress.stepTimes.length > 50) {
+    progress.stepTimes.shift();
+  }
+
+  saveProgress(progress);
 };
