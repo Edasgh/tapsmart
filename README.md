@@ -1,4 +1,4 @@
-# 🧠 TapSmart – Interactive Learning for Senior Citizens
+# 🧠 TapSmart – Interactive Basic Technology Learning for Senior Citizens
 
 ## 🌟 Inspiration
 Many senior citizens struggle with everyday technology—smartphones, apps, payments—because tutorials are fast, confusing, and not designed for them.  
