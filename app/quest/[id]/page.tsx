@@ -16,9 +16,9 @@ export default function QuestScreen() {
   };
 
   const [xp, setXp] = useState(0);
-  const [prevXp,setPrevXp] = useState(0);
+  const [prevXp, setPrevXp] = useState(0);
   const [level, setLevel] = useState(1);
-  const [prevLevel,setPrevLevel] = useState(1);
+  const [prevLevel, setPrevLevel] = useState(1);
   const [xpPopups, setXpPopups] = useState<
     { id: number; x: number; y: number }[]
   >([]);
@@ -141,7 +141,7 @@ export default function QuestScreen() {
           completedQuests: updated,
         });
         launchConfetti(); // 🎉
-        speak("Great job! You completed this lesson");
+        speak("Lesson Completed!");
       }
     }
   }, [currentStep]);
@@ -300,10 +300,9 @@ export default function QuestScreen() {
                         {/* Highlight stays SAME */}
                         <div
                           onClick={(e) => completeStep(index, e)}
-                          className={`absolute flex items-center justify-center cursor-pointer
-    ${data[currentQuest].getClassName(index)}`}
+                          className={`absolute flex items-center justify-center cursor-pointer  ${data[currentQuest].getClassName(index)}`}
                         >
-                          <span className="w-20 h-20 border-4 border-red-500 rounded-full animate-ping" />
+                          <span className="w-10 h-10 md:w-20 md:h-20 border-4 border-red-500 rounded-full animate-ping" />
                         </div>
 
                         {/* Glass instruction bar */}
@@ -370,7 +369,6 @@ export default function QuestScreen() {
                     setCompleted([]);
                     setXp(prevXp);
                     setLevel(prevLevel);
-
                   }}
                   className="flex-1 border py-2.5 rounded-xl text-sm"
                 >

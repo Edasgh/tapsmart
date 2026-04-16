@@ -18,13 +18,13 @@ export const data = [
     getClassName: (index: number) => {
       return ` ${
         index === 0
-          ? "sm:top-15 md:top-32 right-1"
+          ? "top-23 right-5 md:top-32 md:right-1"
           : index === 1
-            ? "bottom-16 right-3"
+            ? "bottom-23 md:bottom-16 right-3"
             : index === 2
-              ? "sm:top-32 md:top-52 inset-x-0"
+              ? "bottom-52 md:bottom-30 inset-x-0"
               : index === 3
-                ? "sm:bottom-36 md:bottom-52 sm:right-3 md:right-1"
+                ? "bottom-50 md:bottom-52 right-1"
                 : "inset-0"
       }`;
     },
@@ -52,17 +52,18 @@ export const data = [
     getClassName: (index: number) => {
       return `${
         index === 0
-          ? "sm:top-15 md:top-32 right-1"
+          ? "top-23 right-5 md:top-32 md:right-1"
           : index === 1
-            ? "top-56 inset-x-0"
+            ? "bottom-52 md:bottom-30 inset-x-0"
             : index === 2
-              ? "bottom-12 right-32"
+              ? "top-20 right-15 md:right-20"
               : index === 3
                 ? "top-8 left-6"
                 : index === 4
-                  ? "top-30 inset-x-0" :
-                  index=== 5 ? "bottom-10 right-0"
-                  : "inset-0"
+                  ? "top-25 md:top-30 inset-x-0"
+                  : index === 5
+                    ? "bottom-15 md:bottom-10 right-0"
+                    : "inset-0"
       }`;
     },
   },
@@ -85,13 +86,13 @@ export const data = [
     getClassName: (index: number) => {
       return `${
         index === 0
-          ? "sm:top-15 md:top-32 right-1"
+          ? "top-23 right-5 md:top-32 md:right-1"
           : index === 1
-            ? "top-56 inset-x-0"
+            ? "bottom-52 md:bottom-30 inset-x-0"
             : index === 2
-              ? "right-3 top-2"
+              ? "right-5 md:right-3 top-2"
               : index === 3
-                ? "bottom-42 right-10"
+                ? "bottom-60 right-9 md:bottom-42 md:right-10"
                 : "inset-0"
       }`;
     },
@@ -99,29 +100,29 @@ export const data = [
   {
     title: "Search on Google",
     steps: [
-      "Open Chrome",
+      "Open Google",
       "Tap search bar",
       "Type your query",
       "Press search",
       "View results",
     ],
     images: [
-      "/images/chrome.jpeg",
+      "/images/google.jpeg",
       "/images/searchbar.jpeg",
-      "/images/typing-search.jpeg",
+      "/images/query.jpeg",
       "/images/search-btn.jpeg",
-      "/images/results.jpeg",
+      "/images/results.gif",
     ],
     getClassName: (index: number) => {
       return `${
         index === 0
-          ? "bottom-20 right-4"
+          ? "top-30 md:top-10 left-11 md:left-15"
           : index === 1
-            ? "top-4 inset-x-0"
+            ? "top-20 md:top-17 inset-x-0"
             : index === 2
-              ? "top-4 inset-x-0"
+              ? "-top-4 md:top-2 inset-x-0"
               : index === 3
-                ? "bottom-6 right-4"
+                ? "bottom-12 md:bottom-6 right-0"
                 : "inset-0"
       }`;
     },
@@ -145,13 +146,13 @@ export const data = [
     getClassName: (index: number) => {
       return `${
         index === 0
-          ? "bottom-20 right-4"
+          ? "top-20 md:top-10 left-4"
           : index === 1
-            ? "bottom-4 inset-x-0"
+            ? "bottom-15 md:bottom-5 inset-x-0"
             : index === 2
-              ? "bottom-4 inset-x-0"
+              ? "inset-0"
               : index === 3
-                ? "bottom-4 right-4"
+                ? "bottom-48 right-2 md:bottom-25"
                 : "inset-0"
       }`;
     },
@@ -169,19 +170,19 @@ export const data = [
       "/images/icon.jpeg",
       "/images/chatlist.jpeg",
       "/images/chat-open.jpeg",
-      "/images/video-btn.jpeg",
+      "/images/chat-open.jpeg",
       "/images/video-call.jpeg",
     ],
     getClassName: (index: number) => {
       return `${
         index === 0
-          ? "sm:top-15 md:top-32 right-1"
+          ? "top-23 right-5 md:top-32 md:right-1"
           : index === 1
-            ? "top-40 inset-x-0"
+            ? "bottom-52 md:bottom-30 inset-x-0"
             : index === 2
               ? "inset-0"
               : index === 3
-                ? "top-4 right-10"
+                ? "top-2 md:-top-4 right-15"
                 : "inset-0"
       }`;
     },
