@@ -78,3 +78,14 @@ export const addStepTime = (time: number) => {
 
   saveProgress(progress);
 };
+
+export const addCompletedQuest = (title: string) => {
+  const progress = getProgress();
+
+  // prevent duplicates
+  if (!progress.completedQuests.includes(title)) {
+    progress.completedQuests.push(title);
+  }
+
+  saveProgress(progress);
+};

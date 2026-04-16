@@ -12,6 +12,7 @@ import {
   saveProgress,
   updateDailyActivity,
   UserProgress,
+  addCompletedQuest
 } from "@/lib/progress";
 
 export default function QuestScreen() {
@@ -151,41 +152,41 @@ export default function QuestScreen() {
 
         setCompletedQuests(updated);
 
-        updateProgress({
-          xp,
-          level,
-        });
-        launchConfetti(); // 🎉
+        addCompletedQuest(title); // ✅ persist properly
+
+        launchConfetti();
         speak("Lesson Completed!");
       }
     }
   }, [currentStep]);
 
   const completeStep = (index: number, e?: React.MouseEvent) => {
+    // allow completing any visible step
+    gainXP(10);
+
+    const timeTaken = Date.now() - stepStartTime.current;
+    addStepTime(timeTaken);
+
+    const rect = (e?.currentTarget as HTMLElement)?.getBoundingClientRect();
+
+    const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+    const y = rect ? rect.top : window.innerHeight / 2;
+
+    const id = Date.now();
+
+    setXpPopups((prev) => [...prev, { id, x, y }]);
+
+    setTimeout(() => {
+      setXpPopups((prev) => prev.filter((p) => p.id !== id));
+    }, 800);
+
+    setCompleted((prev) => {
+      if (prev.includes(index)) return prev;
+      return [...prev, index];
+    });
+
+    // move forward ONLY if it's current step
     if (index === currentStep) {
-      gainXP(10);
-
-      // ⏱️ Track time
-      const timeTaken = Date.now() - stepStartTime.current;
-      addStepTime(timeTaken);
-
-      // 🎯 Get click position
-      const rect = (e?.currentTarget as HTMLElement)?.getBoundingClientRect();
-
-      const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
-      const y = rect ? rect.top : window.innerHeight / 2;
-
-      const id = Date.now();
-
-      // Add popup
-      setXpPopups((prev) => [...prev, { id, x, y }]);
-
-      // Remove after animation
-      setTimeout(() => {
-        setXpPopups((prev) => prev.filter((p) => p.id !== id));
-      }, 800);
-
-      setCompleted((prev) => (prev.includes(index) ? prev : [...prev, index]));
       setCurrentStep(index + 1);
     }
   };
@@ -283,7 +284,7 @@ export default function QuestScreen() {
           <div className="space-y-3">
             {data[currentQuest].steps.map((step, index) => {
               const isActive = index === currentStep;
-              const isDone = completed.includes(index);
+              const isDone = index < currentStep;
 
               return (
                 <div
@@ -294,7 +295,11 @@ export default function QuestScreen() {
                 >
                   {/* Step Header */}
                   <div
-                    onClick={() => setCurrentStep(index)}
+                    onClick={() => {
+                      if (index <= currentStep) {
+                        setCurrentStep(index);
+                      }
+                    }}
                     className={`flex items-center gap-3 p-3 cursor-pointer ${
                       isActive ? "bg-blue-50 shadow-md" : ""
                     }`}

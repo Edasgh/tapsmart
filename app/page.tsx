@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { data } from "@/lib/data";
 import { getProgress } from "@/lib/progress";
+import WeeklyGraph from "./components/WeeklyGraph";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -12,7 +13,11 @@ export default function HomeScreen() {
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
   const [completedQuests, setCompletedQuests] = useState<string[]>([]);
-  const [dailyActivity, setDailyActivity] = useState<any[]>([]);
+  const [dailyActivity, setDailyActivity] = useState<
+    { date: string; xp: number; skills?: number }[]
+  >([]);
+  const [loading, setLoading] = useState(true);
+
   const [stepTimes, setStepTimes] = useState<number[]>([]);
   const [showLockMsg, setShowLockMsg] = useState<number | null>(null);
 
@@ -28,28 +33,31 @@ export default function HomeScreen() {
   ];
 
   useEffect(() => {
-    const saved = getProgress();
+    setTimeout(() => {
+      const saved = getProgress();
 
-    setXp(saved.xp);
-    setLevel(saved.level);
-    setCompletedQuests(saved.completedQuests);
-    setDailyActivity(saved.dailyActivity || []);
-    setStepTimes(saved.stepTimes || []);
+      setXp(saved.xp);
+      setLevel(saved.level);
+      setCompletedQuests(saved.completedQuests);
+      setDailyActivity(saved.dailyActivity || []);
+      setStepTimes(saved.stepTimes || []);
 
-    // 📅 Today skills
-    const today = new Date().toISOString().split("T")[0];
-    const todayData = saved.dailyActivity?.find((d) => d.date === today);
-    setTodaySkills(todayData?.skills || 0);
+      // 📅 Today skills
+      const today = new Date().toISOString().split("T")[0];
+      const todayData = saved.dailyActivity?.find((d) => d.date === today);
+      setTodaySkills(todayData?.skills || 0);
 
-    // ⚡ Speed (lower time = better)
-    if (saved.stepTimes?.length) {
-      const avg =
-        saved.stepTimes.reduce((a, b) => a + b, 0) / saved.stepTimes.length;
+      // ⚡ Speed (lower time = better)
+      if (saved.stepTimes?.length) {
+        const avg =
+          saved.stepTimes.reduce((a, b) => a + b, 0) / saved.stepTimes.length;
 
-      // normalize (faster = higher %)
-      const score = Math.max(10, Math.min(100, 100 - avg / 50));
-      setSpeedPercent(Math.floor(score));
-    }
+        // normalize (faster = higher %)
+        const score = Math.max(10, Math.min(100, 100 - avg / 50));
+        setSpeedPercent(Math.floor(score));
+      }
+      setLoading(false);
+    }, 0);
   }, []);
 
   // 🚀 Smart Start
@@ -124,7 +132,9 @@ export default function HomeScreen() {
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white p-4 rounded-xl shadow-sm border">
             <p className="text-xs text-gray-500">Today</p>
-            <p className="text-lg font-semibold">{todaySkills} skills</p>
+            <p className="text-lg font-semibold">
+              {todaySkills} steps completed
+            </p>
           </div>
 
           <div className="bg-white p-4 rounded-xl shadow-sm border">
@@ -142,44 +152,7 @@ export default function HomeScreen() {
         </div>
 
         {/* 📈 WEEKLY GRAPH */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border">
-          <p className="text-sm text-gray-600 mb-2">Weekly Progress</p>
-
-          {dailyActivity === null ? (
-            // 🔄 LOADER
-            <div className="flex items-end gap-2 h-20 animate-pulse">
-              {[...Array(7)].map((_, i) => (
-                <div key={i} className="flex-1 flex items-end">
-                  <div
-                    className="w-full bg-gray-200 rounded-md"
-                    style={{
-                      height: `${Math.random() * 80 + 20}%`,
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          ) : dailyActivity.length === 0 ? (
-            // 💤 EMPTY STATE
-            <div className="h-20 flex items-center justify-center text-sm text-gray-400">
-              No activity yet
-            </div>
-          ) : (
-            // 📊 GRAPH
-            <div className="flex items-end gap-2 h-20">
-              {dailyActivity.slice(-7).map((d, i) => (
-                <div key={i} className="flex-1">
-                  <div
-                    className="bg-green-400 rounded-md transition-all duration-500"
-                    style={{
-                      height: `${Math.min(d.xp, 100)}%`,
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <WeeklyGraph/>
 
         {/* 📚 ALL QUESTS */}
         <div>
