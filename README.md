@@ -2,7 +2,7 @@
 
 ## 🌟 Inspiration
 Many senior citizens struggle with everyday technology—smartphones, apps, payments—because tutorials are fast, confusing, and not designed for them.  
-We wanted to build something that makes learning **simple, calm, and confidence-building**.
+I wanted to build something that makes learning **simple, calm, and confidence-building**.
 
 ---
 
@@ -48,7 +48,7 @@ It’s like **Duolingo, but for practical digital skills**.
 
 ---
 
-## 📚 What we learned
+## 📚 What I learned
 - Simplicity > Features when designing for seniors
 - Gamification significantly improves engagement
 - AI works best when **constrained with clear prompts**
