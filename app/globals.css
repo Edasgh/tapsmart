@@ -33,3 +33,12 @@ body {
 .animate-float.delay-4000 {
   animation-delay: 4s;
 }
+
+@keyframes loading {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
