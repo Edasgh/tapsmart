@@ -149,7 +149,7 @@ export default function WeeklyGraph() {
                             exit={{ opacity: 0, y: 10 }}
                             className="absolute bottom-full mb-2 px-3 py-1.5 text-xs bg-black text-white rounded-lg shadow-md whitespace-nowrap"
                           >
-                            {d.xp} XP • {d.skills || 0} skills
+                            {d.xp} XP • {d.skills || 0} steps
                           </motion.div>
                         )}
                       </AnimatePresence>
