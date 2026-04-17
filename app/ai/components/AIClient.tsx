@@ -31,6 +31,7 @@ export default function AIClient() {
         body: JSON.stringify({
           message: text,
           topic,
+          questId
         }),
       });
 
