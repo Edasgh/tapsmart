@@ -335,7 +335,7 @@ export default function QuestScreen() {
                           onClick={(e) => completeStep(index, e)}
                           className={`absolute flex items-center justify-center cursor-pointer  ${data[currentQuest].getClassName(index)}`}
                         >
-                          <span className="w-10 h-10 md:w-20 md:h-20 border-4 border-red-500 rounded-full animate-ping" />
+                          <span className="w-20 h-20 border-4 border-red-500 rounded-full animate-ping" />
                         </div>
 
                         {/* Glass instruction bar */}
